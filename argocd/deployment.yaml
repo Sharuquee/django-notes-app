@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notes-app-sharuquee
+  name: notes-app-sharuque
   labels:
     app: notesapp-django
 spec:
