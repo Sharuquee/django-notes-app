@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('cleanup workspace'){
+            steps{
+                cleanWs()
+            }
+        }
+        stage('git clone'){
+            steps{
+                git url: "https://github.com/Sharuquee/django-notes-app.git", branch: "main"
+            }
+        }
+        stage('build image'){
+            steps{
+                sh "docker build -t sharuqueep ."
+            }
+        }
+        stage('push image'){
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'docker', toolName: 'Docker'){
+                   sh "docker image tag sharuqueep sharuquee/sharuqueep:$BUILD_ID"
+                   sh "docker push sharuquee/sharuqueep:$BUILD_ID"
+                    }
+                }
+            }
+        }
+        
+        stage('Trigger cd pipeline'){
+            steps{
+                build job: "cd_pipeline", wait: true
+            }
+        }
+    }
+}
