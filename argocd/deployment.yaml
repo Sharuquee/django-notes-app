@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: notes-app
-        image: sharuquee/sharrr:11
+        image: sharuquee/sharrr:$BUILD_ID
         ports:
         - containerPort: 8000
