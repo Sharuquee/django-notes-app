@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    
+    environment{
+        GITHUB_USER= 'Sharuquee'
+        GITHUB_TOKEN= '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'
+    }
+
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('cleanup workspace'){
+            steps{
+                cleanWs()
+            }
+        }
+        stage('git checkout'){
+            steps{
+                git url:"https://github.com/Sharuquee/django-notes-app.git", branch: "main"
+            }
+        }
+        stage('update deployment tag'){
+            steps{
+                sh ''' 
+                       sed -i 's/sharuqueep.*/sharuqueep:$BUILD_ID/g' argocd/deployment.yaml '''
+            }
+        }
+        stage('push changed deployment to github'){
+            steps{
+                sh ''' git config --global user.name "Sharuquee"
+                       git config --global user.email "psharukhahmedkhan@gmail.com"
+                       git add argocd/deployment.yaml
+                       git commit -m "updated deployment manifest" '''
+                       
+                withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+            sh '''
+                git remote set-url origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/Sharuquee/django-notes-app.git
+                git push origin main
+            '''
+                }
+            }
+        }
+    }
+}
